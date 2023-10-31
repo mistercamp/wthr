@@ -1,0 +1,16 @@
+[Unit]
+After=network.service
+PartOf=graphical-session.target
+
+[Service]
+User = __USER__
+Environment=DISPLAY=__DISPLAY__
+Environment=XAUTHORITY=__XAUTH__
+Environment=XDG_RUNTIME_DIR=__XDGRUN__
+WorkingDirectory=__INSTALL_LOC__
+ExecStart=__INSTALL_LOC__/.venv/bin/python3 __INSTALL_LOC__/wthr.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
