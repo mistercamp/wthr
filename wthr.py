@@ -3,16 +3,16 @@ from PyQt6 import QtCore, QtGui
 from PyQt6.QtGui import * 
 from PyQt6.QtCore import * 
 from datetime import datetime
+from pathlib import Path
+from PIL import Image
 import threading
-import subprocess
 import requests
 import pgeocode
 import time
 import json
-import os
 
 stop_event = threading.Event()
-pwd =  os.getcwd()
+pwd =  Path.cwd()
 
 img_map = {'Thunderstorms': {'icon': 'storm_icon.png', 'day': 'storm_bg.png', 'night': 'storm_bg.png'},             
            'Fog': {'icon': 'fog_icon.png', 'day': 'fog_bg.png', 'night': 'fog_bg.png'}, 
@@ -31,9 +31,8 @@ vars_dict = {'day1': {'high': '', 'low': '', 'description': '', 'day': ''},
              'day5': {'high': '', 'low': '', 'description': '', 'day': ''}}
 
 def check_config():
-    if not os.path.exists(pwd + '/settings.json'):
-        with open(pwd + '/settings.json' ,'w') as file:
-            tmp = os.path.expanduser("~/")                
+    if not Path.exists(Path(pwd, 'settings.json')):
+        with open(Path(pwd, 'settings.json'), 'w') as file:              
             json.dump({"zip_code" : "", "country" : "US", "refresh": "1800", "uri": ""}, file) 
             print("settings.json created")
 
@@ -44,15 +43,15 @@ def get_uri(zipcode, country):
     return uri
 
 def get_json(key):
-    with open(pwd + '/settings.json' ,'r+') as file:
+    with open(Path(pwd, 'settings.json'), 'r+') as file:
         file_data = json.load(file)
         return file_data[key]
 
 def write_json(key, value):
-    with open(pwd + '/settings.json' ,'r+') as file:
+    with open(Path(pwd, 'settings.json'), 'r+') as file:
         file_data = json.load(file)
     file_data[key] = value
-    with open(pwd + '/settings.json' ,'w') as file:
+    with open(Path(pwd, 'settings.json'), 'w') as file:
         json.dump(file_data, file) 
    
 def get_img(img_type, curr_type):
@@ -60,12 +59,12 @@ def get_img(img_type, curr_type):
     for i in img_map:
         if i.lower() in curr_type.lower():
             if img_type == 'icon':
-                return '/img/icon/' + img_map[i]['icon']
+                return 'img/icon/' + img_map[i]['icon']
             if img_type == 'bg':
                 if datetime.now().hour in range(6, 20):
-                    return '/img/bg/' + img_map[i]['day']
+                    return 'img/bg/' + img_map[i]['day']
                 else:
-                    return '/img/bg/' + img_map[i]['night']
+                    return 'img/bg/' + img_map[i]['night']
 
 
 class SetupPanel(QMainWindow):
@@ -79,7 +78,7 @@ class SetupPanel(QMainWindow):
         self.setFixedSize(600, 378)   
         
         bg = QLabel(self)
-        pixmap = QPixmap(pwd + '/img/bg/settings.png')
+        pixmap = QPixmap(str(Path(pwd, 'img/bg/settings.png')))
         bg.setPixmap(pixmap)
         bg.resize(600, 378)    
         
@@ -132,12 +131,12 @@ class WeatherPanel(QWidget):
         self.center()      
         
         self.bg = QLabel(self)
-        pixmap = QPixmap(pwd + bg)
+        pixmap = QPixmap(str(Path(pwd, bg)))
         self.bg.setPixmap(pixmap)
         self.bg.resize(600, 378)  
         
         self.close_btn = QLabel(self)
-        pixmap = QPixmap(pwd + '/img/icon/close.png')
+        pixmap = QPixmap(str(Path(pwd, 'img/icon/close.png')))
         self.close_btn.setPixmap(pixmap)
         self.close_btn.move(565, 15)       
 
@@ -171,7 +170,7 @@ class WeatherPanel(QWidget):
         x_pos, y_pos = 50, 150
         for key in vars_dict:        
             vars_dict[key]['description'] =  QLabel(self)            
-            pixmap = QPixmap(pwd + get_img('icon', self.description[i])).scaled(75, 75, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
+            pixmap = QPixmap(str(Path(pwd, get_img('icon', self.description[i])))).scaled(75, 75, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.FastTransformation)
             vars_dict[key]['description'].setPixmap(pixmap)
             vars_dict[key]['description'].resize(pixmap.width(), pixmap.height())
             vars_dict[key]['description'].move(x_pos, y_pos + 40)  
@@ -244,12 +243,12 @@ class GUI(QMainWindow):
         self.get_current()
         self.make_icon()
         
-        self.icon = QIcon(pwd + "/img/temp/icon.png")
+        self.icon = QIcon(str(Path(pwd, "img/temp", "icon.png")))
         self.tray = QSystemTrayIcon()
         self.tray.setIcon(self.icon)
         self.tray.setVisible(True)
         
-        self.icon2 = QIcon(pwd + get_img('icon', self.curr_type))
+        self.icon2 = QIcon(str(Path(pwd, get_img('icon', self.curr_type))))
         self.tray2 = QSystemTrayIcon()
         self.tray2.setIcon(self.icon2)
         self.tray2.setVisible(True)
@@ -286,26 +285,26 @@ class GUI(QMainWindow):
                 if stop_event.is_set():
                     break       
                 time.sleep(1)
-                i+=1        
+                i += 1        
             if stop_event.is_set():
                     break 
             if i == int(value):
-                i=0    
+                i = 0    
             self.update()
     
     def update(self):
         self.get_current()
         self.make_icon()
-        self.icon = QIcon(pwd + "/img/temp/icon.png")
+        self.icon = QIcon(str(Path(pwd, "img/temp/icon.png")))
         self.tray.setIcon(self.icon)
         self.tray.setVisible(True)
         
-        self.icon2 = QIcon(pwd + get_img('icon', self.curr_type))
+        self.icon2 = QIcon(str(Path(pwd, get_img('icon', self.curr_type))))
         self.tray2.setIcon(self.icon2)
         self.tray2.setVisible(True) 
         
     def get_current(self):
-        tries, idx = 0, 2 #2 = rockwall
+        tries, idx = 0, 2
         stop_flag = False
         while not stop_flag:
             try:
@@ -326,15 +325,15 @@ class GUI(QMainWindow):
         #print('Current:', self.curr_temp, 'Description:', self.curr_type)
 
     def make_icon(self):
-        pic = ''
+        pics = {}
+        x, y = 0, 512
+        icon = Image.new("RGBA", ((261 * len(str(self.curr_temp))) + 109, y), "white")        
         for i in range(len(str(self.curr_temp))):
-            pic += pwd + '/img/temp/' + str(self.curr_temp)[i] + '.png '
-        pic += pwd + '/img/temp/deg.png '    
-        img_cmd = 'convert +append ' + pic + '-colorspace RGB ' + pwd + '/img/temp/icon.png'
-        try:
-            subprocess.run(img_cmd, shell = True, executable="/bin/bash")
-        except:
-            pass
+            pics[i] = Image.open(Path(pwd, 'img/temp/' + str(self.curr_temp)[i] + '.png'))
+            icon.paste(pics[i], (x, 0)) 
+            x += 261
+        icon.paste(Image.open(Path(pwd, 'img/temp/deg.png')), (x, 0)) 
+        icon.save(Path(pwd, 'img/temp/icon.png'))
 
 
 if __name__ == '__main__':
