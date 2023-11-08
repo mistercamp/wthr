@@ -3,12 +3,12 @@ After=network.service
 PartOf=graphical-session.target
 
 [Service]
-User = __USER__
-Environment=DISPLAY=__DISPLAY__
-Environment=XAUTHORITY=__XAUTH__
-Environment=XDG_RUNTIME_DIR=__XDGRUN__
-WorkingDirectory=__INSTALL_LOC__
-ExecStart=__INSTALL_LOC__/.venv/bin/python3 __INSTALL_LOC__/wthr.py
+User = b3n
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/b3n/.Xauthority
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+WorkingDirectory=/opt/wthr
+ExecStart=/opt/wthr/.venv/bin/python3 /opt/wthr/wthr.py
 Restart=on-failure
 RestartSec=5
 

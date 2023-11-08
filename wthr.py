@@ -83,24 +83,28 @@ class SetupPanel(QMainWindow):
         bg.setPixmap(pixmap)
         bg.resize(600, 378)    
         
-        save_btn = QPushButton("Save", self) 
+        save_btn = QPushButton("Save", self)         
         save_btn.setGeometry(265, 250, 70, 25) 
         save_btn.clicked.connect(self.cancel)
         save_btn.setStyleSheet("border-radius : 50; \
-                                background-color : rgba(255, 255, 255, 40);") 
+                                background-color : rgba(255, 255, 255, 40); \
+                                color: white") 
         
         welcome = QLabel(self)
         welcome.setText("Welcome")
         welcome.setFont(QFont('Arial', 42))
+        welcome.setStyleSheet("color: white")
         welcome.setGeometry(182, 60, 250, 75)
         
         welcome2 = QLabel(self)
         welcome2.setText("Please enter your zip code")
         welcome2.setFont(QFont('Arial', 12))
+        welcome2.setStyleSheet("color: white")
         welcome2.setGeometry(205, 100, 250, 75)
         
         self.zip_code = QLineEdit(self)
-        self.zip_code.setStyleSheet("background-color: rgba(255, 255, 255, 40);") 
+        self.zip_code.setStyleSheet("background-color: rgba(255, 255, 255, 40); \
+                                     color: white") 
         self.zip_code.move(200, 175)
         self.zip_code.resize(200, 40)
         self.zip_code.setFocus()
